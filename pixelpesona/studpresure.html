@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Pressure</title>
+    <style>
+        :root {
+            --bg-dark: #180d0c;
+            --bg-deep: #21100f;
+            --bg-warm: #87433e;
+            --accent: #ffb0a8;
+            --accent-strong: #ff8b7e;
+            --gold: #f7c98a;
+            --text: #fff5f2;
+            --muted: rgba(255, 255, 255, 0.78);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --shadow: rgba(0, 0, 0, 0.28);
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: var(--text);
+            background: url("./graphics/ChatGPT%20Image%20Oct%209,%202026,%2010_45_24%20AM.png") center / cover no-repeat fixed;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(rgba(8, 5, 5, 0.36), rgba(8, 5, 5, 0.48));
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            z-index: 50;
+        }
+
+        .progress-bar span {
+            display: block;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #ff8b7e, #f7c98a, #ffb0a8);
+            box-shadow: 0 0 12px rgba(255, 176, 168, 0.85);
+            transition: width 0.12s ease-out;
+        }
+
+        .cursor-glow {
+            position: fixed;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 176, 168, 0.25), transparent 62%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+            filter: blur(14px);
+        }
+
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
+            animation: floatParticle linear infinite;
+            opacity: 0.35;
+        }
+
+        @keyframes floatParticle {
+            0% { transform: translate3d(0, 0, 0) scale(0.7); opacity: 0; }
+            20% { opacity: 0.8; }
+            100% { transform: translate3d(var(--drift-x), -120vh, 0) scale(1.2); opacity: 0; }
+        }
+
+        main, section, footer {
+            position: relative;
+            z-index: 2;
+        }
+
+        main {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35));
+        }
+
+        main h1 {
+            margin: 0 0 0.7rem;
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            letter-spacing: 0.04em;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .typed-text {
+            display: inline-block;
+            min-height: 1.2em;
+            border-right: 3px solid rgba(255, 255, 255, 0.8);
+            padding-right: 0.25rem;
+            animation: blink 0.8s step-end infinite;
+        }
+
+        @keyframes blink { 50% { border-color: transparent; } }
+
+        main p {
+            max-width: 42rem;
+            margin: 0;
+            font-size: clamp(1rem, 2.5vw, 1.35rem);
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        section {
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+            padding: clamp(2rem, 8vw, 6rem) max(2rem, calc((100vw - 55rem) / 2));
+        }
+
+        .before, .content, .conclu, .last {
+            background: var(--bg-deep);
+        }
+
+        .before {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background:
+                linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.4)),
+                url("./graphics/Screenshot 2026-10-09 121655.png") center / cover no-repeat fixed;
+        }
+
+        .bodyy {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background:
+                linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.4)),
+                url("./graphics/ChatGPT%20Image%20Oct%209,%202026,%2011_39_07%20AM.png") center / cover no-repeat fixed;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--accent);
+            font-size: clamp(1.8rem, 4vw, 2.7rem);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        h3 {
+            color: var(--gold);
+            font-size: clamp(1.4rem, 2.5vw, 2rem);
+        }
+
+        p, li {
+            font-size: 1.08rem;
+            line-height: 1.9;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        ul {
+            margin: 1.25rem 0 0;
+            padding-left: 1.25rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        li:hover {
+            transform: translateX(6px);
+            color: #ffe7dd;
+        }
+
+        .glass-card, .panel, .stat-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 20px 40px var(--shadow);
+            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+        }
+
+        .glass-card:hover, .panel:hover, .stat-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 25px 55px rgba(0, 0, 0, 0.28);
+            border-color: rgba(255, 176, 168, 0.4);
+        }
+
+        .before-inner, .content-inner, .bodyy-inner, .conclu-inner {
+            position: relative;
+            z-index: 2;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 700;
+            color: var(--accent-strong);
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+        }
+
+        .panel {
+            margin-top: 1.5rem;
+            padding: 1.4rem 1.5rem;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px) scale(0.98);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .parallax-layer {
+            transform: translateY(0);
+            transition: transform 0.12s linear;
+        }
+
+        .picture-section {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            background: var(--bg-dark);
+        }
+
+        .picture-section img {
+            display: block;
+            width: min(72vw, 700px);
+            max-height: 75vh;
+            object-fit: contain;
+            border-radius: 24px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+            animation: pictureFlow 1.5s ease-out both;
+        }
+
+        @keyframes pictureFlow {
+            0% { transform: translateX(-80px) scale(0.92); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+
+        .last {
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+        }
+
+        .help-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0 0;
+        }
+
+        .help-list li {
+            margin: 0.5rem 0;
+        }
+
+        @media (max-width: 680px) {
+            .before, .content, .bodyy, .conclu, .last {
+                padding-left: 1.2rem;
+                padding-right: 1.2rem;
+            }
+
+            p, li { font-size: 1rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+            .reveal { opacity: 1; transform: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar"><span id="progressBar"></span></div>
+    <div class="cursor-glow" aria-hidden="true"></div>
+    <div class="particles" id="particles" aria-hidden="true"></div>
+
+    <main>
+        <h1 class="reveal"><span class="typed-text" id="typedText"></span></h1>
+        <p class="reveal">Understanding the challenges faced by students in today's academic environment.</p>
+    </main>
+
+    <section class="before">
+        <div class="before-inner reveal">
+            <h2>What Causes Pressure?</h2>
+            <ul>
+                <li>Academic/Systemic Shock: Scoring poorly in a mock test, a sudden drop in grades, or facing sudden instability like national exam paper leaks and cancellations.</li>
+                <li>Institutional Harassment: Experiencing caste-based discrimination, linguistic exclusion, or systemic bullying by peers or professors.</li>
+                <li>Financial Terror: Realising that delayed government scholarships or high-interest private tuition loans are putting their family under severe financial strain.</li>
+                <li>Thwarted Belongingness: The feeling of being completely alone, isolated, and disconnected from family, friends, or the student community.</li>
+                <li>Perceived Burdenedness: The agonizing belief that their existence, financial needs, or academic failures are causing immense pain and financial ruin to their parents.</li>
+            </ul>
+        </div>
+    </section>
+    <section class="content">
+        <div class="content-inner reveal">
+            <h2>Result of this pressure</h2>
+            <div class="stats-grid">
+                <div class="stat-card reveal">
+                    <span >Depression</span>
+                </div>
+                <div class="stat-card reveal">
+                    <span >Suicide</span>
+                </div>
+                <div class="stat-card reveal">
+                    <span> Anxiety</span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="content-inner reveal">
+            <h2>Depression</h2>
+            <p>, epidemiological data reveals that it is the primary catalyst driving the student mental health crisis. Large-scale studies and pooled medical data confirm that more than two-thirds of Indian students (63.5% to 64%) encounter severe stress caused directly by academic pressure</p>
+            <h2>Suicide</h2>
+            <p>Suicide is a major concern for the upcoming future of a country as well as for the development of technolgies.The suicide cases of students due to peer pressure hass taken a major concern that is seen by government also as nation wide problem.</p>
+        </div>
+
+    </section>
+
+    <section class="content">
+        <div class="content-inner reveal">
+            <h2>Total Cases of Suicide by Student</h2>
+            <p>Student suicides in India have climbed to unprecedented crisis levels, with the latest comprehensive National Crime Records Bureau (NCRB) data revealing that <strong>14,488</strong> students died by suicide in 2024. This represents an 80% surge over the last decade from 8,068 deaths in 2014, making students one of the fastest-growing vulnerable demographics in the country. States like Maharashtra, Madhya Pradesh, Uttar Pradesh, and Tamil Nadu report the highest absolute numbers.</p>
+
+            <div class="stats-grid">
+                <div class="stat-card reveal">
+                    <span class="stat-value" data-target="14488">0</span>
+                    <span class="stat-label">Death Count</span>
+                </div>
+                <div class="stat-card reveal">
+                    <span class="stat-value" data-target="80">0</span>
+                    <span class="stat-label">% Surge</span>
+                </div>
+                <div class="stat-card reveal">
+                    <span class="stat-value" data-target="2024">0</span>
+                    <span class="stat-label">Till year</span>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card reveal">
+                    <span class="stat-value" data-target="8068">0</span>
+                    <span class="stat-label">Death Count</span>
+                </div>
+                
+                <div class="stat-card reveal">
+                    <span class="stat-value" data-target="2014">0</span>
+                    <span class="stat-label">In year</span>
+                </div>
+            </div>
+
+            <div class="panel reveal">
+                <h2>Reasons for These Suicides</h2>
+                <ul>
+                    <li>Academic Stress &amp; Fear of Failure: Rigid attendance policies, heavy curriculum demands, and intense societal and familial pressure to succeed create an environment where failure is heavily stigmatised.</li>
+                    <li>Institutional Neglect &amp; Discrimination: A nationwide survey by a Supreme Court-appointed panel revealed that 15% of students in Higher Education Institutions (HEIs) felt severely distressed, and 9% reported suicidal ideation.</li>
+                    <li>Exam Instability and Systemic Failures: Repeated entrance exam disruptions and paper-leak controversies create intense uncertainty and fear for students preparing for years.</li>
+                    <li>Fear of Failure &amp; Parental Expectations: Rigid cultural definitions of success tie a student's self-worth entirely to academic performance.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="bodyy parallax-layer" data-parallax>
+        <div class="bodyy-inner reveal">
+            <h2>Government Viewpoint</h2>
+            <p>The Government of India views student suicide as a critical public health crisis and a manifestation of severe mental and emotional distress rather than an individual failure. This perspective is codified in the Mental Healthcare Act, 2017, which officially decriminalised suicide under Section 115, shifting the focus from punishment to mandated care and rehabilitation.</p>
+            <p>To address this crisis, the government, in coordination with the Supreme Court of India, has implemented a multi-pronged prevention framework across schools, coaching hubs, and universities.</p>
+            <ul>
+                <li><strong>Legal accountability:</strong> Supreme Court directives mandate institutional responsibility and immediate action for student distress.</li>
+                <li><strong>Mandatory resource action:</strong> Institutions must resolve scholarship delays and faculty shortages to reduce stress and exclusion.</li>
+                <li><strong>Immediate referral:</strong> Campuses must provide medical support and connect distressed students to professional care.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="conclu">
+        <div class="conclu-inner reveal">
+            <h2>How Can We Help?</h2>
+
+            <h3>As a Parent</h3>
+            <p><strong>Parents are the closest to the children yet the farthest from their pain.</strong> Daily conversations, emotional support, and realistic expectations can help children feel safe, valued, and heard. Parents should avoid comparison, understand their mental health, and seek professional help when needed.</p>
+
+            <h3>As a Student</h3>
+            <p>Students should learn to ask for help without shame, maintain healthy routines, and build a support network. Academic performance does not define self-worth, and reaching out early can prevent long-term suffering.</p>
+
+            <h3>As a Friend</h3>
+            <p>Friends can notice subtle changes in behavior, start supportive conversations, and encourage students to get help before the situation becomes overwhelming.</p>
+        </div>
+    </section>
+
+    <section class="picture-section">
+        <img src="./graphics/Screenshot 2026-10-09 135126.png" alt="Student pressure illustration">
+    
+
+    <footer class="last reveal">
+        <h2>We Must Listen, Support, and Act</h2>
+        <p>Student well-being is not a side issue. It is the foundation of a healthier future.</p>
+
+        <ul class="help-list">
+            <li>Tele-MANAS (Government of India): 14416 or 1800-891-4416</li>
+            <li>KIRAN Helpline (Ministry of Social Justice): 1800-599-0019</li>
+            <li>Vandrevala Foundation: +91 9999 666 555</li>
+        </ul>
+    </footer>
+    </section>
+
+    <script>
+        const progressBar = document.getElementById('progressBar');
+        const revealItems = document.querySelectorAll('.reveal');
+        const parallaxItems = document.querySelectorAll('[data-parallax]');
+        const statValues = document.querySelectorAll('.stat-value');
+        const cursorGlow = document.querySelector('.cursor-glow');
+
+        const updateProgress = () => {
+            const scrollTop = window.scrollY;
+            const height = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = height > 0 ? (scrollTop / height) * 100 : 0;
+            progressBar.style.width = `${progress}%`;
+        };
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.16 });
+
+        revealItems.forEach((item) => revealObserver.observe(item));
+
+        const animateCounter = (element) => {
+            if (element.dataset.animated === 'true') {
+                return;
+            }
+
+            element.dataset.animated = 'true';
+            const target = Number(element.dataset.target || 0);
+            const suffix = target >= 1000 ? '' : '%';
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                element.textContent = `${target}${suffix}`;
+                return;
+            }
+
+            const duration = 1800;
+            const start = performance.now();
+
+            const tick = (now) => {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const value = Math.round(target * eased);
+                element.textContent = `${value}${suffix}`;
+                if (progress < 1) {
+                    requestAnimationFrame(tick);
+                } else {
+                    element.textContent = `${target}${suffix}`;
+                }
+            };
+
+            requestAnimationFrame(tick);
+        };
+
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    statObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        statValues.forEach((stat) => statObserver.observe(stat));
+
+        const revealVisibleItems = () => {
+            revealItems.forEach((item) => {
+                const bounds = item.getBoundingClientRect();
+                if (bounds.top < window.innerHeight * 0.9 && bounds.bottom > 0) {
+                    item.classList.add('visible');
+                }
+            });
+
+            statValues.forEach((stat) => {
+                const bounds = stat.getBoundingClientRect();
+                if (bounds.top < window.innerHeight && bounds.bottom > 0) {
+                    animateCounter(stat);
+                }
+            });
+        };
+
+        const handleParallax = () => {
+            const scrollY = window.scrollY;
+            parallaxItems.forEach((item, index) => {
+                const offset = (scrollY - item.offsetTop) * 0.12;
+                item.style.transform = `translate3d(0, ${offset * (index % 2 === 0 ? 1 : -1)}px, 0)`;
+            });
+        };
+
+        window.addEventListener('scroll', () => {
+            updateProgress();
+            handleParallax();
+            revealVisibleItems();
+        }, { passive: true });
+
+        window.addEventListener('load', () => {
+            updateProgress();
+            revealVisibleItems();
+        });
+
+        document.addEventListener('pointermove', (event) => {
+            cursorGlow.style.left = `${event.clientX}px`;
+            cursorGlow.style.top = `${event.clientY}px`;
+        });
+
+        const typedText = document.getElementById('typedText');
+        const phrases = ['Student Pressure', 'Mental Health Crisis', 'Academic Burden'];
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let deleting = false;
+
+        const typeLoop = () => {
+            const current = phrases[phraseIndex];
+            charIndex = deleting ? charIndex - 1 : charIndex + 1;
+            typedText.textContent = current.slice(0, charIndex);
+
+            if (!deleting && charIndex === current.length) {
+                deleting = true;
+                setTimeout(typeLoop, 1400);
+                return;
+            }
+
+            if (deleting && charIndex === 0) {
+                deleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+            }
+
+            const speed = deleting ? 60 : 110;
+            setTimeout(typeLoop, speed);
+        };
+
+        setTimeout(typeLoop, 450);
+
+        const particleContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('span');
+            particle.className = 'particle';
+            const size = Math.random() * 6 + 4;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.setProperty('--drift-x', `${(Math.random() - 0.5) * 100}px`);
+            particle.style.animationDuration = `${Math.random() * 12 + 12}s`;
+            particle.style.animationDelay = `${Math.random() * 8}s`;
+            particleContainer.appendChild(particle);
+        }
+    </script>
+</body>
+</html>
